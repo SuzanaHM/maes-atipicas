@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".paginas.Principal"
+    android:background="#A7FFF3"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:spacing="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Recado do dia -->
+        <TextView
+            android:id="@+id/recadoTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="#FFE082"
+            android:backgroundTint="#FFF8E1"
+            android:elevation="4dp"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Seja gentil com você mesmo hoje!"
+            android:textColor="#000000"
+            android:textSize="25sp" />
+
+        <!-- Botão Agenda -->
+        <Button
+            android:id="@+id/botaoAgenda"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/botao_amarelo"
+            android:backgroundTint="#FFD54F"
+            android:padding="12dp"
+            android:text="Agenda"
+            android:textSize="70sp"
+            android:textColor="#000000" />
+
+        <!-- Botão Diário -->
+        <Button
+            android:id="@+id/botaoDiario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/botao_verde"
+            android:backgroundTint="#81C784"
+            android:padding="12dp"
+            android:text="Diário"
+            android:textSize="70sp"
+            android:textColor="#000000" />
+
+        <!-- Botão Fórum -->
+        <Button
+            android:id="@+id/botaoForum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/botao_vermelho"
+            android:backgroundTint="#E57373"
+            android:padding="12dp"
+            android:text="Fórum"
+            android:textSize="70sp"
+            android:textColor="#000000" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
