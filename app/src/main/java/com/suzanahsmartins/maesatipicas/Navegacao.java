@@ -1,11 +1,10 @@
-package com.suzanahsmartins.maesatipicas.paginas;
-
-import android.app.Activity;
+package com.suzanahsmartins.maesatipicas;
 
 import androidx.fragment.app.Fragment;
 
-import com.suzanahsmartins.maesatipicas.MainActivity;
-import com.suzanahsmartins.maesatipicas.R;
+import com.suzanahsmartins.maesatipicas.paginas.Agenda;
+import com.suzanahsmartins.maesatipicas.paginas.Agenda_Novo;
+import com.suzanahsmartins.maesatipicas.paginas.Principal;
 
 public class Navegacao {
 
@@ -23,12 +22,22 @@ public class Navegacao {
     }
 
     public void navegarTo(Pagina pagina){
+        this.pagina = pagina;
         switch(pagina){
             case Principal:
                 carregarPagina(new Principal());
                 break;
             case Agenda:
                 carregarPagina(new Agenda());
+                break;
+            case Agenda_Novo:
+                carregarPagina(new Agenda_Novo());
+                break;
+            case Forum:
+                carregarPagina(new Agenda_Novo());
+                break;
+            case Diario:
+                carregarPagina(new Agenda_Novo());
                 break;
         }
     }
@@ -48,6 +57,9 @@ public class Navegacao {
 
     public enum Pagina{
         Principal,
-        Agenda
+        Agenda,
+        Agenda_Novo,
+        Diario,
+        Forum
     }
 }

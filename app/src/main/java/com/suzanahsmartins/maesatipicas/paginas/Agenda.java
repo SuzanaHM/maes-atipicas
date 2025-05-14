@@ -6,28 +6,25 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+
 import android.widget.TextView;
 
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
+import com.suzanahsmartins.maesatipicas.MainActivity;
+import com.suzanahsmartins.maesatipicas.Navegacao;
 import com.suzanahsmartins.maesatipicas.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 
+import com.suzanahsmartins.maesatipicas.agenda.Compromisso;
 import com.suzanahsmartins.maesatipicas.databinding.FragmentAgendaBinding;
-import com.suzanahsmartins.maesatipicas.room.AppDatabase;
-import com.suzanahsmartins.maesatipicas.room.agenda;
+import com.suzanahsmartins.maesatipicas.room.DataBase;
 
 public class Agenda extends Fragment {
 
@@ -43,19 +40,26 @@ public class Agenda extends Fragment {
 
         binding.recyclerAgenda.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        binding.fabAdicionar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.getInstance(getActivity()).getNavegacao().navegarTo(Navegacao.Pagina.Agenda_Novo);
+            }
+        });
+
         // Criando dados fictícios de exemplo
         List<AgendaMes> agendaMesList = new ArrayList<>();
 
         carregarMeses();
 
-        AppDatabase db = Room.databaseBuilder(getContext(), AppDatabase.class, "agenda.db").build();
+        DataBase db = DataBase.getInstance(getContext(), "agenda.db");
 
         new Thread(() -> {
             for(String s : meses){
-                List<agenda.Compromisso> l = db.compromissoDao().listarPorMes(s);
+                List<Compromisso> l = db.getAgenda().listarPorMes(s);
                 if(l.isEmpty()){
-                    agenda.Compromisso c = new agenda.Compromisso();
-                    c.descricao = "voce não tem compromisso este mês";
+                    Compromisso c = new Compromisso();
+                    c.titulo = "voce não tem compromisso este mês";
                     c.dia = "!";
                     l = new ArrayList<>(Arrays.asList(
                             c
@@ -69,16 +73,6 @@ public class Agenda extends Fragment {
                 });
             }
         }).start();
-
-        new Thread(() -> {
-            agenda.Compromisso c = new agenda.Compromisso();
-            c.descricao = "teste";
-            c.dia = "1";
-            c.hora = "11:30";
-            c.mes = "Maio 2025";
-            db.compromissoDao().inserir(c);
-        }).start();
-
 
         agendaMesAdapter = new AgendaMesAdapter(agendaMesList);
         binding.recyclerAgenda.setAdapter(agendaMesAdapter);
@@ -113,24 +107,13 @@ public class Agenda extends Fragment {
 
     public class AgendaMes {
         public String nomeMes;
-        public List<agenda.Compromisso> compromissos;
+        public List<Compromisso> compromissos;
 
-        public AgendaMes(String nomeMes, List<agenda.Compromisso> compromissos) {
+        public AgendaMes(String nomeMes, List<Compromisso> compromissos) {
             this.nomeMes = nomeMes;
             this.compromissos = compromissos;
         }
     }
-
-    public class Compromisso {
-        public String dia;
-        public String descricao;
-
-        public Compromisso(String dia, String descricao) {
-            this.dia = dia;
-            this.descricao = descricao;
-        }
-    }
-
 
     @Override
     public void onDestroyView() {
@@ -182,9 +165,9 @@ public class Agenda extends Fragment {
 
 
     public class CompromissoAdapter extends RecyclerView.Adapter<CompromissoAdapter.ViewHolder> {
-        private List<agenda.Compromisso> compromissos;
+        private List<Compromisso> compromissos;
 
-        public CompromissoAdapter(List<agenda.Compromisso> compromissos) {
+        public CompromissoAdapter(List<Compromisso> compromissos) {
             this.compromissos = compromissos;
         }
 
@@ -197,12 +180,12 @@ public class Agenda extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            agenda.Compromisso compromisso = compromissos.get(position);
+            Compromisso compromisso = compromissos.get(position);
             holder.txtDia.setText(compromisso.dia);
             if(compromisso.hora != null) {
-                holder.txtDescricao.setText(compromisso.hora + " - " + compromisso.descricao);
+                holder.txtDescricao.setText(compromisso.hora + " - " + compromisso.titulo);
             }else{
-                holder.txtDescricao.setText(compromisso.descricao);
+                holder.txtDescricao.setText(compromisso.titulo);
             }
         }
 

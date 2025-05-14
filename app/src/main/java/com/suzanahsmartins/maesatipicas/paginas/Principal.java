@@ -7,7 +7,10 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.suzanahsmartins.maesatipicas.MainActivity;
+import com.suzanahsmartins.maesatipicas.Navegacao;
+import com.suzanahsmartins.maesatipicas.R;
 import com.suzanahsmartins.maesatipicas.RecadoDiario;
 import com.suzanahsmartins.maesatipicas.databinding.FragmentPrincipalBinding;
 
@@ -23,6 +26,9 @@ public class Principal extends Fragment {
 
         String recado = RecadoDiario.getRandom();
         binding.recadoTextView.setText(recado);
+        Glide.with(this)
+                .load(R.drawable.icon)
+                .into(binding.imageView);
 
         binding.botaoAgenda.setOnClickListener(new View.OnClickListener() {
             @Override
