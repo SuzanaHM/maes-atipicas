@@ -17,10 +17,14 @@ import com.suzanahsmartins.maesatipicas.MainActivity;
 import com.suzanahsmartins.maesatipicas.Navegacao;
 import com.suzanahsmartins.maesatipicas.R;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import com.suzanahsmartins.maesatipicas.agenda.Compromisso;
 import com.suzanahsmartins.maesatipicas.databinding.FragmentAgendaBinding;
@@ -43,6 +47,7 @@ public class Agenda extends Fragment {
         binding.fabAdicionar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MainActivity.getInstance(getActivity()).setCompromissoEdit(null);
                 MainActivity.getInstance(getActivity()).getNavegacao().navegarTo(Navegacao.Pagina.Agenda_Novo);
             }
         });
@@ -53,19 +58,72 @@ public class Agenda extends Fragment {
         carregarMeses();
 
         DataBase db = DataBase.getInstance(getContext(), "agenda.db");
-
         new Thread(() -> {
-            for(String s : meses){
+            Calendar cal = Calendar.getInstance();
+            int mesAtual = cal.get(Calendar.MONTH); // de 0 a 11
+            int anoAtual = cal.get(Calendar.YEAR);
+            int diaAtual = cal.get(Calendar.DAY_OF_MONTH);
+
+            for (String s : meses) {
                 List<Compromisso> l = db.getAgenda().listarPorMes(s);
-                if(l.isEmpty()){
+                if (l.isEmpty()) {
                     Compromisso c = new Compromisso();
-                    c.titulo = "voce não tem compromisso este mês";
+                    c.titulo = "você não tem compromisso este mês";
                     c.dia = "!";
-                    l = new ArrayList<>(Arrays.asList(
-                            c
-                    ));
+                    l = new ArrayList<>(Arrays.asList(c));
                 }
-                agendaMesList.add(new AgendaMes(s, l));
+
+                ArrayList<Compromisso> lf = new ArrayList<>();
+
+                for (Compromisso i : l) {
+                    if (i.dia.equals("!")) {
+                        lf.add(i);
+                    } else {
+                        int diaCompromisso = Integer.parseInt(i.dia);
+
+                        // Supondo que seu string "s" seja tipo "Janeiro 2025"
+                        String[] partes = s.split(" ");
+                        String nomeMes = partes[0];
+                        int anoCompromisso = Integer.parseInt(partes[1]);
+                        int mesCompromisso = nomeMesToNumero(nomeMes); // converte Janeiro → 0, Fevereiro → 1, etc.
+
+                        if (mesCompromisso == mesAtual && anoCompromisso == anoAtual) {
+                            if (diaCompromisso > diaAtual) {
+                                lf.add(i); // dia no futuro
+                            } else if (diaCompromisso == diaAtual) {
+                                // verificar hora
+                                try {
+                                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                                    Date horaCompromisso = sdf.parse(i.hora);
+
+                                    Calendar agora = Calendar.getInstance();
+                                    Calendar horaAtual = Calendar.getInstance();
+                                    horaAtual.set(Calendar.HOUR_OF_DAY, agora.get(Calendar.HOUR_OF_DAY));
+                                    horaAtual.set(Calendar.MINUTE, agora.get(Calendar.MINUTE));
+                                    horaAtual.set(Calendar.SECOND, 0);
+                                    horaAtual.set(Calendar.MILLISECOND, 0);
+
+                                    Calendar horaDoCompromisso = Calendar.getInstance();
+                                    horaDoCompromisso.setTime(horaCompromisso);
+                                    horaDoCompromisso.set(Calendar.YEAR, anoCompromisso);
+                                    horaDoCompromisso.set(Calendar.MONTH, mesCompromisso);
+                                    horaDoCompromisso.set(Calendar.DAY_OF_MONTH, diaCompromisso);
+
+                                    if (horaDoCompromisso.after(horaAtual)) {
+                                        lf.add(i); // ainda vai acontecer hoje
+                                    }
+                                } catch (ParseException e) {
+                                    e.printStackTrace(); // ou log
+                                }
+                            }
+                        } else {
+                            lf.add(i); // mês diferente do atual
+                        }
+
+                    }
+                }
+
+                agendaMesList.add(new AgendaMes(s, lf));
 
                 requireActivity().runOnUiThread(() -> {
                     agendaMesAdapter = new AgendaMesAdapter(agendaMesList);
@@ -74,13 +132,30 @@ public class Agenda extends Fragment {
             }
         }).start();
 
+
         agendaMesAdapter = new AgendaMesAdapter(agendaMesList);
         binding.recyclerAgenda.setAdapter(agendaMesAdapter);
-        // Acesso direto às views com binding, exemplo:
-        // binding.recyclerAgenda.setAdapter(...);
 
         return binding.getRoot();
     }
+    private int nomeMesToNumero(String nomeMes) {
+        switch (nomeMes.toLowerCase()) {
+            case "janeiro": return 0;
+            case "fevereiro": return 1;
+            case "março": return 2;
+            case "abril": return 3;
+            case "maio": return 4;
+            case "junho": return 5;
+            case "julho": return 6;
+            case "agosto": return 7;
+            case "setembro": return 8;
+            case "outubro": return 9;
+            case "novembro": return 10;
+            case "dezembro": return 11;
+            default: return -1;
+        }
+    }
+
     ArrayList<String> meses = new ArrayList<>();
 
     private void carregarMeses() {
@@ -187,6 +262,14 @@ public class Agenda extends Fragment {
             }else{
                 holder.txtDescricao.setText(compromisso.titulo);
             }
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    MainActivity.getInstance(getActivity()).setCompromissoEdit(compromisso);
+                    MainActivity.getInstance(getActivity()).getNavegacao().navegarTo(Navegacao.Pagina.Agenda_Novo);
+                }
+            });
         }
 
         @Override
@@ -201,6 +284,7 @@ public class Agenda extends Fragment {
                 super(itemView);
                 txtDia = itemView.findViewById(R.id.txtDia);
                 txtDescricao = itemView.findViewById(R.id.txtHoraCompromisso);
+
             }
         }
     }

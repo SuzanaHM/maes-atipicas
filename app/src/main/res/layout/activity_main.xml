@@ -7,22 +7,34 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <ImageButton
+        android:visibility="gone"
+        android:id="@+id/botaoVoltar"
+        android:background="#0D47A1"
+        android:layout_width="50dp"
+        android:layout_height="56dp"
+        android:src="@drawable/baseline_arrow_back_24"
+        app:layout_constraintBottom_toBottomOf="@+id/topBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/topBar"
+        app:tint="#FFFFFF" />
     <!-- Barra no topo com o nome do app -->
     <TextView
         android:id="@+id/topBar"
         android:layout_width="0dp"
         android:layout_height="56dp"
         android:background="#0D47A1"
-        android:text="Mães Atípicas"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
+        android:elevation="4dp"
         android:gravity="center"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:elevation="4dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:text="Mães Atípicas"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/botaoVoltar"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <!-- Área para carregar o fragment -->
     <androidx.fragment.app.FragmentContainerView

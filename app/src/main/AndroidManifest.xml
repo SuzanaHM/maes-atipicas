@@ -2,14 +2,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+
+
 
     <application
         android:allowBackup="true"
+        android:enabled="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/icon"
@@ -18,11 +29,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light"
         tools:targetApi="31">
+        <receiver
+            android:name=".agenda.despertador.AlarmReceiver"
+            android:exported="true"/>
         <activity
-            android:name=".agenda.AlarmActivity"
+            android:name=".agenda.despertador.AlarmActivity"
             android:exported="true"
-            android:showWhenLocked="true"
-            android:turnScreenOn="true"/>
+            android:launchMode="singleTask"
+            android:taskAffinity="" />
 
         <receiver
             android:name=".agenda.MeuReceiver"

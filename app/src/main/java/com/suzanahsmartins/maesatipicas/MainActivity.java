@@ -1,15 +1,20 @@
 package com.suzanahsmartins.maesatipicas;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
+import android.os.PowerManager;
 import android.provider.Settings;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,12 +24,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.suzanahsmartins.maesatipicas.agenda.AlarmActivity;
-import com.suzanahsmartins.maesatipicas.agenda.Alarme;
+import com.suzanahsmartins.maesatipicas.agenda.despertador.Alarme;
+import com.suzanahsmartins.maesatipicas.agenda.Compromisso;
+import com.suzanahsmartins.maesatipicas.agenda.despertador.AlarmReceiver;
 import com.suzanahsmartins.maesatipicas.databinding.ActivityMainBinding;
 import com.suzanahsmartins.maesatipicas.paginas.Principal;
+import com.suzanahsmartins.maesatipicas.room.DataBase;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
         // Inicialização do binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+
+        teste();
+
+        new AlarmReceiver();
+
+
 
         // Habilitar Edge-to-Edge
         EdgeToEdge.enable(this);
@@ -77,14 +94,123 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(getPackageName())) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+        }
+        if (!Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        }
+
+        binding.botaoVoltar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getNavegacao().retornar();
+            }
+        });
+
+
+        agendarVerificacaoMeiaNoite(this);
+        verificarCompromissos(this);
 
 
 
 
-        Alarme.define(03, 8, "teste", "exemplo",this);
+
 
 
     }
+
+    public void agendarVerificacaoMeiaNoite(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(context, VerificarReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        // Se já passou de meia-noite hoje, agenda para a próxima meia-noite
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+        );
+    }
+
+    private MainActivity thiss;
+
+    public class VerificarReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            new Thread(() -> {
+                verificarCompromissos(MainActivity.this);
+            }).start();
+        }
+    }
+
+    public void verificarCompromissos(Activity activity) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Calendar agora = Calendar.getInstance();
+
+                // Ex: "Janeiro 2025"
+                String mesano = new SimpleDateFormat("MMMM yyyy", new Locale("pt", "BR")).format(agora.getTime());
+                mesano = mesano.substring(0, 1).toUpperCase() + mesano.substring(1);
+                DataBase db = DataBase.getInstance(activity, "agenda.db");
+                List<Compromisso> l = db.getAgenda().listarPorMes(mesano);
+
+                for (Compromisso i : l) {
+                    try {
+                        // Pega hora e minuto do compromisso
+                        String[] partes = i.hora.split(":");
+                        int hora = Integer.parseInt(partes[0]);
+                        int minuto = Integer.parseInt(partes[1]);
+
+                        // Pega o dia do compromisso
+                        int dia = Integer.parseInt(i.dia);
+
+                        // Cria objeto Calendar com a data e hora do compromisso
+                        Calendar dataCompromisso = Calendar.getInstance();
+                        dataCompromisso.set(Calendar.DAY_OF_MONTH, dia);
+                        dataCompromisso.set(Calendar.HOUR_OF_DAY, hora);
+                        dataCompromisso.set(Calendar.MINUTE, minuto);
+                        dataCompromisso.set(Calendar.SECOND, 0);
+                        dataCompromisso.set(Calendar.MILLISECOND, 0);
+
+                        // Verifica se a hora ainda não passou
+                        if (dataCompromisso.after(agora)) {
+                            Alarme.define(hora, minuto, i.titulo, i.descricao, MainActivity.getInstance(activity), i.id);
+
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace(); // Evita crash se houver erro no parse
+                    }
+                }
+
+            }
+        }).start();
+    }
+
 
     public static MainActivity getInstance(Activity activity){
         if(activity instanceof MainActivity){
@@ -97,6 +223,13 @@ public class MainActivity extends AppCompatActivity {
         return navegacao;
     }
 
+    private Compromisso compromisso;
+    public void setCompromissoEdit(Compromisso comp){
+        compromisso = comp;
+    }
+    public Compromisso getCompromissoEdit(){
+        return compromisso;
+    }
 
 
     @Override
@@ -104,5 +237,16 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         // Limpeza do binding
         binding = null;
+    }
+
+    public void teste(){
+
+
+
+
+
+
+
+
     }
 }
