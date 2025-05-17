@@ -1,12 +1,14 @@
 package com.suzanahsmartins.maesatipicas;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -119,12 +121,30 @@ public class MainActivity extends AppCompatActivity {
         agendarVerificacaoMeiaNoite(this);
         verificarCompromissos(this);
 
+        new VerificarReceiver();
 
+        criarCanalDeServico();
 
+        SharedPreferences prefs = getSharedPreferences("servico", Context.MODE_PRIVATE);
+        boolean estaRodando = prefs.getBoolean("rodando", false);
 
+        if (!estaRodando) {
+            Intent serviceIntent = new Intent(this, SegundoPlano.class);
+            ContextCompat.startForegroundService(this, serviceIntent);
+        }
 
+    }
 
-
+    private void criarCanalDeServico(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    "canal_servico",
+                    "Serviço em segundo plano",
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
     }
 
     public void agendarVerificacaoMeiaNoite(Context context) {
@@ -156,14 +176,17 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    private MainActivity thiss;
-
     public class VerificarReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             new Thread(() -> {
                 verificarCompromissos(MainActivity.this);
             }).start();
+            if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+                // Cria a intent para iniciar o serviço
+                Intent serviceIntent = new Intent(context, SegundoPlano.class);
+                ContextCompat.startForegroundService(context, serviceIntent);
+            }
         }
     }
 

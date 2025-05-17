@@ -29,19 +29,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light"
         tools:targetApi="31">
+        <service
+            android:name=".SegundoPlano"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
         <receiver
             android:name=".agenda.despertador.AlarmReceiver"
             android:exported="true"/>
-        <activity
-            android:name=".agenda.despertador.AlarmActivity"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:taskAffinity="" />
-
-        <receiver
-            android:name=".agenda.MeuReceiver"
-            android:enabled="true"
-            android:exported="false" /> <!-- Activity principal com o filtro de intenção -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
