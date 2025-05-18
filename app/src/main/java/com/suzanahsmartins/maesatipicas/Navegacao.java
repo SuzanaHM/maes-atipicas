@@ -4,6 +4,8 @@ import android.view.View;
 
 import androidx.fragment.app.Fragment;
 
+import com.suzanahsmartins.maesatipicas.diario.Diario;
+import com.suzanahsmartins.maesatipicas.diario.Diario_Novo;
 import com.suzanahsmartins.maesatipicas.paginas.Agenda;
 import com.suzanahsmartins.maesatipicas.paginas.Agenda_Novo;
 import com.suzanahsmartins.maesatipicas.paginas.Principal;
@@ -39,7 +41,10 @@ public class Navegacao {
                 carregarPagina(new Agenda_Novo());
                 break;
             case Diario:
-                carregarPagina(new Agenda_Novo());
+                carregarPagina(new Diario());
+                break;
+            case Diario_Novo:
+                carregarPagina(new Diario_Novo());
                 break;
         }
     }
@@ -54,6 +59,9 @@ public class Navegacao {
                 break;
             case Agenda_Novo:
                 navegarTo(Pagina.Agenda);
+                break;
+            case Diario_Novo:
+                navegarTo(Pagina.Diario);
                 break;
         }
     }
@@ -74,6 +82,7 @@ public class Navegacao {
         Agenda,
         Agenda_Novo,
         Diario,
+        Diario_Novo,
         Forum
     }
 }

@@ -36,6 +36,12 @@ public class Principal extends Fragment {
                 MainActivity.getInstance(getActivity()).getNavegacao().navegarTo(Navegacao.Pagina.Agenda);
             }
         });
+        binding.botaoDiario.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.getInstance(getActivity()).getNavegacao().navegarTo(Navegacao.Pagina.Diario);
+            }
+        });
 
         return binding.getRoot();
     }

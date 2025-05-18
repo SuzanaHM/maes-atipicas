@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <!-- Contêiner com contorno -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/containerPostit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_contorno"
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="2dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Barra vermelha com a data -->
+        <TextView
+            android:id="@+id/dataTexto"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="#D32F2F"
+            android:text="15/5/2025 às 11:50"
+            android:textColor="#FFFFFF"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- "Post-it" com texto -->
+        <TextView
+            android:id="@+id/diarioTexto"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="#9FFFD0"
+            android:text="Este é um exemplo de texto"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:padding="16dp"
+            app:layout_constraintTop_toBottomOf="@id/dataTexto"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
