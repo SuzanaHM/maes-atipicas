@@ -17,6 +17,8 @@ import android.Manifest;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
         teste();
 
         new AlarmReceiver();
-
-
 
         // Habilitar Edge-to-Edge
         EdgeToEdge.enable(this);
